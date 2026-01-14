@@ -6,6 +6,7 @@ export async function signup(data) {
   // Auto-login after register
   const auth = { token: accessToken, user };
   localStorage.setItem('auth', JSON.stringify(auth));
+  broadcastAuthChange();
   return auth;
 }
 
@@ -18,11 +19,13 @@ export async function login(credentials) {
   const { accessToken, user } = res.data;
   const auth = { token: accessToken, user };
   localStorage.setItem('auth', JSON.stringify(auth));
+  broadcastAuthChange();
   return auth;
 }
 
 export function logout() {
   localStorage.removeItem('auth');
+  broadcastAuthChange();
 }
 
 export async function adminSignup(data) {
@@ -30,6 +33,7 @@ export async function adminSignup(data) {
   const { accessToken, user } = res.data;
   const auth = { token: accessToken, user };
   localStorage.setItem('auth', JSON.stringify(auth));
+  broadcastAuthChange();
   return auth;
 }
 
@@ -38,6 +42,7 @@ export async function adminLogin(credentials) {
   const { accessToken, user } = res.data;
   const auth = { token: accessToken, user };
   localStorage.setItem('auth', JSON.stringify(auth));
+  broadcastAuthChange();
   return auth;
 }
 
@@ -53,5 +58,29 @@ export function getToken() {
 
 export function isAuthenticated() {
   return !!getToken();
+}
+
+export async function refreshCurrentUser() {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const res = await api.get('/api/auth/me');
+    const auth = JSON.parse(localStorage.getItem('auth') || 'null');
+    if (auth?.token) {
+      const next = { token: auth.token, user: res.data };
+      localStorage.setItem('auth', JSON.stringify(next));
+      broadcastAuthChange();
+    }
+    return res.data;
+  } catch (err) {
+    if (err?.response?.status === 401) {
+      logout();
+    }
+    throw err;
+  }
+}
+
+function broadcastAuthChange() {
+  window.dispatchEvent(new Event('auth-changed'));
 }
 

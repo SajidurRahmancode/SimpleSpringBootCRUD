@@ -38,6 +38,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
+    @Column(name = "supplier_since")
+    private LocalDateTime supplierSince;
+
+    @Column(name = "supplier_profile", length = 1000)
+    private String supplierProfile;
+
     // Constructors
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -108,12 +114,28 @@ public class User {
         this.role = role;
     }
 
+    public LocalDateTime getSupplierSince() {
+        return supplierSince;
+    }
+
+    public void setSupplierSince(LocalDateTime supplierSince) {
+        this.supplierSince = supplierSince;
+    }
+
+    public String getSupplierProfile() {
+        return supplierProfile;
+    }
+
+    public void setSupplierProfile(String supplierProfile) {
+        this.supplierProfile = supplierProfile;
+    }
+
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 
     public enum Role {
-        USER, ADMIN
+        USER, SUPPLIER, ADMIN
     }
 }

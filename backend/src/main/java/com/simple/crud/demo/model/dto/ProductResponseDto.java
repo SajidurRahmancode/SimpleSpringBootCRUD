@@ -17,6 +17,8 @@ public class ProductResponseDto {
     private LocalDateTime updatedAt;
     private Long ownerId;
     private String ownerUsername;
+    private Long supplierId;
+    private String supplierUsername;
 
     // Constructors
     public ProductResponseDto() {}
@@ -33,6 +35,10 @@ public class ProductResponseDto {
         if (product.getOwner() != null) {
             this.ownerId = product.getOwner().getId();
             this.ownerUsername = product.getOwner().getUsername();
+        }
+        if (product.getSupplier() != null) {
+            this.supplierId = product.getSupplier().getId();
+            this.supplierUsername = product.getSupplier().getUsername();
         }
     }
 
@@ -115,5 +121,21 @@ public class ProductResponseDto {
 
     public void setOwnerUsername(String ownerUsername) {
         this.ownerUsername = ownerUsername;
+    }
+
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    public String getSupplierUsername() {
+        return supplierUsername;
+    }
+
+    public void setSupplierUsername(String supplierUsername) {
+        this.supplierUsername = supplierUsername;
     }
 }

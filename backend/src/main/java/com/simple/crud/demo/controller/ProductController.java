@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +52,16 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    @GetMapping("/supplied")
+    @PreAuthorize("hasRole('SUPPLIER')")
+    public ResponseEntity<org.springframework.data.domain.Page<ProductResponseDto>> getSuppliedProducts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        var pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        var products = productService.getSuppliedProducts(pageable);
+        return ResponseEntity.ok(products);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
         Optional<ProductResponseDto> product = productService.getProductById(id);
@@ -81,8 +92,10 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateDto productCreateDto) {
-        ProductResponseDto createdProduct = productService.createProduct(productCreateDto);
+    public ResponseEntity<?> createProduct(
+            @Valid @RequestBody ProductCreateDto productCreateDto,
+            @RequestParam(value = "sellerIdentifier", required = false) String sellerIdentifier) {
+        ProductResponseDto createdProduct = productService.createProduct(productCreateDto, sellerIdentifier);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
@@ -90,9 +103,10 @@ public class ProductController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createProductMultipart(
             @org.springframework.web.bind.annotation.ModelAttribute @Valid ProductCreateDto dto,
-            @RequestPart(value = "image", required = false) MultipartFile image
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "sellerIdentifier", required = false) String sellerIdentifier
     ) {
-        ProductResponseDto createdProduct = productService.createProduct(dto, image);
+        ProductResponseDto createdProduct = productService.createProduct(dto, image, sellerIdentifier);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 

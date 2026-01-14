@@ -3,9 +3,11 @@ package com.simple.crud.demo.service;
 import com.simple.crud.demo.model.dto.ProductCreateDto;
 import com.simple.crud.demo.model.dto.ProductResponseDto;
 import com.simple.crud.demo.model.entity.Product;
+import com.simple.crud.demo.model.entity.User;
 import com.simple.crud.demo.repository.ProductRepository;
 import com.simple.crud.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,27 +71,30 @@ public class ProductService {
 
     @PreAuthorize("isAuthenticated()")
     public ProductResponseDto createProduct(ProductCreateDto productCreateDto) {
-        Product product = productMapper.toEntity(productCreateDto);
-        if (product.getStockQuantity() == null) product.setStockQuantity(0);
-        var owner = getCurrentUser();
-        product.setOwner(owner);
+        return createProduct(productCreateDto, (String) null);
+    }
 
+    @PreAuthorize("isAuthenticated()")
+    public ProductResponseDto createProduct(ProductCreateDto productCreateDto, String sellerIdentifier) {
+        Product product = prepareProduct(productCreateDto, sellerIdentifier);
         Product savedProduct = productRepository.save(product);
         return productMapper.toDto(savedProduct);
     }
 
     @PreAuthorize("isAuthenticated()")
     public ProductResponseDto createProduct(ProductCreateDto productCreateDto, MultipartFile imageFile) {
-        Product product = productMapper.toEntity(productCreateDto);
-        if (product.getStockQuantity() == null) product.setStockQuantity(0);
+        return createProduct(productCreateDto, imageFile, null);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public ProductResponseDto createProduct(ProductCreateDto productCreateDto, MultipartFile imageFile, String sellerIdentifier) {
+        Product product = prepareProduct(productCreateDto, sellerIdentifier);
         try {
             String imagePath = imageFile != null ? fileStorageService.storeImage(imageFile) : null;
             product.setImagePath(imagePath);
         } catch (Exception ex) {
             throw new RuntimeException("Image upload failed: " + ex.getMessage());
         }
-        var owner = getCurrentUser();
-        product.setOwner(owner);
         Product saved = productRepository.save(product);
         return productMapper.toDto(saved);
     }
@@ -162,6 +167,13 @@ public class ProductService {
         return productRepository.findByOwner_Id(me.getId(), pageable).map(productMapper::toDto);
     }
 
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('SUPPLIER')")
+    public org.springframework.data.domain.Page<ProductResponseDto> getSuppliedProducts(org.springframework.data.domain.Pageable pageable) {
+        var me = getCurrentUser();
+        return productRepository.findBySupplier_Id(me.getId(), pageable).map(productMapper::toDto);
+    }
+
     private com.simple.crud.demo.model.entity.User getCurrentUser() {
         var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -180,10 +192,62 @@ public class ProductService {
         }
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         if (isAdmin) return;
+        boolean isSupplier = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPPLIER"));
         var current = getCurrentUser();
         Long ownerId = product.getOwner() != null ? product.getOwner().getId() : null;
         if (ownerId == null || !ownerId.equals(current.getId())) {
-            throw new org.springframework.security.access.AccessDeniedException("Only owner or admin can modify this product");
+            if (isSupplier && product.getSupplier() != null && product.getSupplier().getId() != null
+                    && product.getSupplier().getId().equals(current.getId())) {
+                return;
+            }
+            throw new org.springframework.security.access.AccessDeniedException("Only owner, supplier, or admin can modify this product");
         }
+    }
+
+    private Product prepareProduct(ProductCreateDto productCreateDto, String sellerIdentifier) {
+        Product product = productMapper.toEntity(productCreateDto);
+        if (product.getStockQuantity() == null) {
+            product.setStockQuantity(0);
+        }
+        var currentUser = getCurrentUser();
+        String normalizedIdentifier = sellerIdentifier != null ? sellerIdentifier.trim() : null;
+        User owner = resolveOwner(currentUser, normalizedIdentifier);
+        product.setOwner(owner);
+        boolean supplyingForAnotherUser = normalizedIdentifier != null && !normalizedIdentifier.isBlank();
+        if (supplyingForAnotherUser && currentUser.getRole() == User.Role.SUPPLIER) {
+            product.setSupplier(currentUser);
+        } else {
+            product.setSupplier(null);
+        }
+        return product;
+    }
+
+    private User resolveOwner(User currentUser, String sellerIdentifier) {
+        if (sellerIdentifier == null || sellerIdentifier.isBlank()) {
+            return currentUser;
+        }
+        if (currentUser.getRole() != User.Role.SUPPLIER && currentUser.getRole() != User.Role.ADMIN) {
+            throw new AccessDeniedException("Only suppliers or admins can assign products to other sellers");
+        }
+        User seller = findUserByIdentifier(sellerIdentifier)
+                .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+        if (seller.getRole() == User.Role.ADMIN) {
+            throw new IllegalArgumentException("Cannot assign products to admin accounts");
+        }
+        return seller;
+    }
+
+    private Optional<User> findUserByIdentifier(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            Long id = Long.parseLong(identifier);
+            return userRepository.findById(id);
+        } catch (NumberFormatException ex) {
+            // ignore
+        }
+        return userRepository.findByUsername(identifier)
+                .or(() -> userRepository.findByEmail(identifier));
     }
 }

@@ -12,6 +12,8 @@ public class UserResponseDto {
     private User.Role role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime supplierSince;
+    private String supplierProfile;
 
     // Constructors
     public UserResponseDto() {}
@@ -23,6 +25,8 @@ public class UserResponseDto {
         this.role = user.getRole();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
+        this.supplierSince = user.getSupplierSince();
+        this.supplierProfile = user.getSupplierProfile();
     }
 
     // Getters and Setters
@@ -72,5 +76,21 @@ public class UserResponseDto {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getSupplierSince() {
+        return supplierSince;
+    }
+
+    public void setSupplierSince(LocalDateTime supplierSince) {
+        this.supplierSince = supplierSince;
+    }
+
+    public String getSupplierProfile() {
+        return supplierProfile;
+    }
+
+    public void setSupplierProfile(String supplierProfile) {
+        this.supplierProfile = supplierProfile;
     }
 }

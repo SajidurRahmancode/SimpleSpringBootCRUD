@@ -34,3 +34,6 @@ Icon\r\r
 .Spotlight-V100
 .Trashes
 /backend/uploads
+/frontend/uploads
+
+frontend/package-lock.json

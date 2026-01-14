@@ -46,6 +46,10 @@ public class Product {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id")
+    private User supplier;
+
     // Constructors
     public Product() {
         this.createdAt = LocalDateTime.now();
@@ -131,6 +135,14 @@ public class Product {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public User getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(User supplier) {
+        this.supplier = supplier;
     }
 
     @PreUpdate
