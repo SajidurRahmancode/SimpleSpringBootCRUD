@@ -4,9 +4,10 @@ import com.simple.crud.demo.model.dto.UserCreateDto;
 import com.simple.crud.demo.model.dto.UserResponseDto;
 import com.simple.crud.demo.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -14,16 +15,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<org.springframework.data.domain.Page<UserResponseDto>> getAllUsers(
             @org.springframework.web.bind.annotation.RequestParam(value = "page", defaultValue = "0") int page,
             @org.springframework.web.bind.annotation.RequestParam(value = "size", defaultValue = "10") int size) {
@@ -33,6 +31,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         Optional<UserResponseDto> user = userService.getUserById(id);
         return user.map(ResponseEntity::ok)
@@ -40,6 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/username/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDto> getUserByUsername(@PathVariable String username) {
         Optional<UserResponseDto> user = userService.getUserByUsername(username);
         return user.map(ResponseEntity::ok)

@@ -4,7 +4,7 @@ import com.simple.crud.demo.model.dto.ProductCreateDto;
 import com.simple.crud.demo.model.dto.ProductResponseDto;
 import com.simple.crud.demo.service.ProductService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
@@ -18,14 +18,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
-
-    @Autowired
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
 
     @GetMapping
     public ResponseEntity<org.springframework.data.domain.Page<ProductResponseDto>> getAllProducts(

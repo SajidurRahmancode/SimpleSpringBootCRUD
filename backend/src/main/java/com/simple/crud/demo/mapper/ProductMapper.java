@@ -18,3 +18,6 @@ public interface ProductMapper {
     Product toEntity(ProductCreateDto dto);
     void updateEntityFromDto(ProductCreateDto dto, @MappingTarget Product entity);
 }
+
+
+

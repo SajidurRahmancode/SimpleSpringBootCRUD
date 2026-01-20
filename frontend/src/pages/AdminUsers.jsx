@@ -8,8 +8,9 @@ export default function AdminUsers() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get('/api/admin/users');
-        setUsers(res.data);
+        const res = await api.get('/api/users');
+        // Backend returns paginated response with 'content' array
+        setUsers(res.data.content || []);
       } catch (e) {
         setError(e?.response?.data?.message || 'Failed to load users');
       }
@@ -20,7 +21,7 @@ export default function AdminUsers() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete user?')) return;
     try {
-      await api.delete(`/api/admin/users/${id}`);
+      await api.delete(`/api/users/${id}`);
       setUsers(users.filter(u => u.id !== id));
     } catch (e) {
       alert(e?.response?.data?.message || 'Delete failed');
@@ -35,9 +36,9 @@ export default function AdminUsers() {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
+            <th>Username</th>
             <th>Email</th>
-            <th>Roles</th>
+            <th>Role</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -45,9 +46,9 @@ export default function AdminUsers() {
           {users.map(u => (
             <tr key={u.id}>
               <td>{u.id}</td>
-              <td>{u.fullName}</td>
+              <td>{u.username}</td>
               <td>{u.email}</td>
-              <td>{(u.roles || []).join(', ')}</td>
+              <td>{u.role}</td>
               <td>
                 <button onClick={() => handleDelete(u.id)}>Delete</button>
               </td>

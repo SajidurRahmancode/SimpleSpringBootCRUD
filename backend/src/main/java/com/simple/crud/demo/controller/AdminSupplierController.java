@@ -5,7 +5,7 @@ import com.simple.crud.demo.model.dto.SupplierApplicationResponseDto;
 import com.simple.crud.demo.model.entity.SupplierApplication;
 import com.simple.crud.demo.service.SupplierApplicationService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,14 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/suppliers")
+@RequiredArgsConstructor
 public class AdminSupplierController {
 
     private final SupplierApplicationService supplierApplicationService;
-
-    @Autowired
-    public AdminSupplierController(SupplierApplicationService supplierApplicationService) {
-        this.supplierApplicationService = supplierApplicationService;
-    }
 
     @GetMapping("/applications")
     @PreAuthorize("hasRole('ADMIN')")

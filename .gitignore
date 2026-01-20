@@ -37,3 +37,6 @@ Icon\r\r
 /frontend/uploads
 
 frontend/package-lock.json
+backend/LOGBACK_IMPLEMENTATION_COMPLETE.md
+backend/LOGGING_IMPLEMENTATION.md
+backend/LOGBACK_QUICK_START.md

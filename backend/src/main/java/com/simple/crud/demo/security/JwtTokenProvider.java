@@ -31,7 +31,7 @@ public class JwtTokenProvider {
             byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
             return Keys.hmacShaKeyFor(keyBytes);
         } catch (IllegalArgumentException ex) {
-            // Fallback: treat secret as raw string if not Base64
+            // fallback treat secret as raw string if not Base64
             byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
             return Keys.hmacShaKeyFor(keyBytes);
         }

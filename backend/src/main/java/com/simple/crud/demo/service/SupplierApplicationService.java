@@ -9,7 +9,8 @@ import com.simple.crud.demo.model.entity.SupplierApplication;
 import com.simple.crud.demo.model.entity.User;
 import com.simple.crud.demo.repository.SupplierApplicationRepository;
 import com.simple.crud.demo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,27 +25,28 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
+@Slf4j
 public class SupplierApplicationService {
 
     private final SupplierApplicationRepository applicationRepository;
     private final UserRepository userRepository;
 
-    @Autowired
-    public SupplierApplicationService(SupplierApplicationRepository applicationRepository,
-                                      UserRepository userRepository) {
-        this.applicationRepository = applicationRepository;
-        this.userRepository = userRepository;
-    }
-
     public SupplierApplicationResponseDto submitApplication(SupplierApplicationRequestDto dto) {
         User applicant = getCurrentUser();
+        log.info("Supplier application submission attempt - userId: {}, businessName: '{}'", 
+                applicant.getId(), dto.getBusinessName());
+        
         if (applicant.getRole() == User.Role.SUPPLIER || applicant.getRole() == User.Role.ADMIN) {
+            log.warn("Application submission rejected - user already has elevated role - userId: {}, role: {}", 
+                    applicant.getId(), applicant.getRole());
             throw new AccessDeniedException("You are already approved to supply products");
         }
 
         boolean hasPending = applicationRepository.existsByApplicantAndStatusIn(applicant,
                 EnumSet.of(SupplierApplication.Status.PENDING));
         if (hasPending) {
+            log.warn("Application submission rejected - pending application exists - userId: {}", applicant.getId());
             throw new IllegalStateException("You already have a pending application");
         }
 
@@ -61,20 +63,27 @@ public class SupplierApplicationService {
         SupplierApplication saved = applicationRepository.save(entity);
         applicant.setSupplierProfile(dto.getBusinessName());
         userRepository.save(applicant);
+        
+        log.info("AUDIT: Supplier application submitted - applicationId: {}, userId: {}, businessName: '{}'", 
+                saved.getId(), applicant.getId(), dto.getBusinessName());
         return new SupplierApplicationResponseDto(saved);
     }
 
     @Transactional(readOnly = true)
     public List<SupplierApplicationResponseDto> getMyApplications() {
         User me = getCurrentUser();
-        return applicationRepository.findByApplicantOrderBySubmittedAtDesc(me).stream()
+        log.debug("Fetching supplier applications for userId: {}", me.getId());
+        List<SupplierApplicationResponseDto> applications = applicationRepository.findByApplicantOrderBySubmittedAtDesc(me).stream()
                 .map(SupplierApplicationResponseDto::new)
                 .collect(Collectors.toList());
+        log.info("Retrieved {} supplier applications for userId: {}", applications.size(), me.getId());
+        return applications;
     }
 
     @Transactional(readOnly = true)
     public SupplierDashboardDto getDashboard() {
         User me = getCurrentUser();
+        log.debug("Building supplier dashboard for userId: {}, role: {}", me.getId(), me.getRole());
         List<SupplierApplication> applications = applicationRepository
                 .findByApplicantOrderBySubmittedAtDesc(me);
         SupplierDashboardDto dto = new SupplierDashboardDto();
@@ -86,6 +95,7 @@ public class SupplierApplicationService {
             dto.getAlerts().add(new SupplierAlertDto("info",
                 "Admins manage supplier requests from the admin dashboard.",
                 LocalDateTime.now()));
+            log.debug("Dashboard built for admin user - userId: {}", me.getId());
             return dto;
         }
 
@@ -101,6 +111,7 @@ public class SupplierApplicationService {
                     "Approved supplier since " + (me.getSupplierSince() != null ? me.getSupplierSince() : LocalDateTime.now()),
                     LocalDateTime.now()));
             dto.setCanApply(false);
+            log.debug("Dashboard built for supplier - userId: {}", me.getId());
             return dto;
         }
 
@@ -115,6 +126,7 @@ public class SupplierApplicationService {
         } else {
             alerts.add(new SupplierAlertDto("info", "Apply to start supplying other sellers.", LocalDateTime.now()));
         }
+        log.debug("Dashboard built for regular user - userId: {}, canApply: {}", me.getId(), dto.isCanApply());
         return dto;
     }
 
@@ -122,6 +134,7 @@ public class SupplierApplicationService {
     public org.springframework.data.domain.Page<SupplierApplicationResponseDto> getApplicationsForAdmin(
             SupplierApplication.Status status,
             org.springframework.data.domain.Pageable pageable) {
+        log.debug("Admin fetching supplier applications - status: {}, page: {}", status, pageable.getPageNumber());
         if (status != null) {
             return applicationRepository.findByStatus(status, pageable)
                     .map(SupplierApplicationResponseDto::new);
@@ -131,13 +144,24 @@ public class SupplierApplicationService {
 
     public SupplierApplicationResponseDto reviewApplication(Long id, SupplierApplicationDecisionDto decisionDto) {
         User admin = getCurrentUser();
+        log.info("AUDIT: Admin reviewing supplier application - applicationId: {}, adminId: {}, decision: {}", 
+                id, admin.getId(), decisionDto.getDecision());
+        
         if (admin.getRole() != User.Role.ADMIN) {
+            log.error("SECURITY: Non-admin user attempted to review application - userId: {}, role: {}", 
+                    admin.getId(), admin.getRole());
             throw new AccessDeniedException("Only admins can review applications");
         }
 
         SupplierApplication application = applicationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+                .orElseThrow(() -> {
+                    log.error("Application review failed - application not found: {}", id);
+                    return new IllegalArgumentException("Application not found");
+                });
+        
         if (application.getStatus() != SupplierApplication.Status.PENDING) {
+            log.warn("Application review rejected - application already reviewed - applicationId: {}, currentStatus: {}", 
+                    id, application.getStatus());
             throw new IllegalStateException("Application already reviewed");
         }
 
@@ -151,6 +175,8 @@ public class SupplierApplicationService {
 
         if (targetStatus == SupplierApplication.Status.APPROVED) {
             User applicant = application.getApplicant();
+            log.info("AUDIT: Promoting user to SUPPLIER role - userId: {}, adminId: {}", 
+                    applicant.getId(), admin.getId());
             applicant.setRole(User.Role.SUPPLIER);
             if (applicant.getSupplierSince() == null) {
                 applicant.setSupplierSince(LocalDateTime.now());
@@ -159,6 +185,8 @@ public class SupplierApplicationService {
         }
 
         SupplierApplication saved = applicationRepository.save(application);
+        log.info("AUDIT: Supplier application reviewed - applicationId: {}, decision: {}, reviewedBy: {}, applicantId: {}", 
+                id, targetStatus, admin.getUsername(), application.getApplicant().getId());
         return new SupplierApplicationResponseDto(saved);
     }
 

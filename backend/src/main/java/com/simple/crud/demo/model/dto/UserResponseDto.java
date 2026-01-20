@@ -1,9 +1,13 @@
 package com.simple.crud.demo.model.dto;
 
 import com.simple.crud.demo.model.entity.User;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
 public class UserResponseDto {
 
     private Long id;
@@ -15,9 +19,7 @@ public class UserResponseDto {
     private LocalDateTime supplierSince;
     private String supplierProfile;
 
-    // Constructors
-    public UserResponseDto() {}
-
+    // Custom constructor for entity mapping
     public UserResponseDto(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
@@ -27,70 +29,5 @@ public class UserResponseDto {
         this.updatedAt = user.getUpdatedAt();
         this.supplierSince = user.getSupplierSince();
         this.supplierProfile = user.getSupplierProfile();
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public User.Role getRole() {
-        return role;
-    }
-
-    public void setRole(User.Role role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public LocalDateTime getSupplierSince() {
-        return supplierSince;
-    }
-
-    public void setSupplierSince(LocalDateTime supplierSince) {
-        this.supplierSince = supplierSince;
-    }
-
-    public String getSupplierProfile() {
-        return supplierProfile;
-    }
-
-    public void setSupplierProfile(String supplierProfile) {
-        this.supplierProfile = supplierProfile;
     }
 }

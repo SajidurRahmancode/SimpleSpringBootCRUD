@@ -5,7 +5,7 @@ import com.simple.crud.demo.model.dto.SupplierApplicationResponseDto;
 import com.simple.crud.demo.model.dto.SupplierDashboardDto;
 import com.simple.crud.demo.service.SupplierApplicationService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,14 +18,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/suppliers")
+@RequiredArgsConstructor
 public class SupplierController {
 
     private final SupplierApplicationService supplierApplicationService;
-
-    @Autowired
-    public SupplierController(SupplierApplicationService supplierApplicationService) {
-        this.supplierApplicationService = supplierApplicationService;
-    }
 
     @PostMapping("/applications")
     @PreAuthorize("isAuthenticated()")

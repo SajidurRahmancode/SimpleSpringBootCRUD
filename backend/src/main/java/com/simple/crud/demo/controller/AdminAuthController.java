@@ -5,7 +5,7 @@ import com.simple.crud.demo.model.dto.AdminRegisterDto;
 import com.simple.crud.demo.model.dto.UserResponseDto;
 import com.simple.crud.demo.service.AdminAuthService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +15,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/auth")
+@RequiredArgsConstructor
 public class AdminAuthController {
 
     private final AdminAuthService adminAuthService;
-
-    @Autowired
-    public AdminAuthController(AdminAuthService adminAuthService) {
-        this.adminAuthService = adminAuthService;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody AdminRegisterDto userCreateDto) {
