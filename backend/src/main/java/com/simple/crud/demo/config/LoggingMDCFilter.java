@@ -11,22 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.UUID;
 
-/**
- * MDC (Mapped Diagnostic Context) Filter for adding contextual information to logs.
- * <p>
- * This filter adds the following to MDC for every request:
- * - requestId: Unique identifier for the request (useful for tracking requests across logs)
- * - userId: Currently authenticated user's username (if authenticated)
- * - sessionId: HTTP session ID (if available)
- * <p>
- * These values are automatically included in log messages via the pattern in logback-spring.xml
- * <p>
- * Production-ready features:
- * - Thread-safe MDC operations
- * - Automatic cleanup in finally block to prevent memory leaks
- * - High priority order to execute early in filter chain
- * - Null-safe extraction of user and session information
- */
+
 @Component
 @Order(1) // Execute early in the filter chain
 public class LoggingMDCFilter implements Filter {
