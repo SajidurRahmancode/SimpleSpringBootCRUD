@@ -9,8 +9,6 @@ import ProductForm from './pages/ProductForm';
 import AdminLogin from './pages/AdminLogin';
 import AdminSignup from './pages/AdminSignup';
 import AdminUsers from './pages/AdminUsers';
-import SupplierHub from './pages/SupplierHub';
-import AdminSuppliers from './pages/AdminSuppliers';
 import { getCurrentUser, refreshCurrentUser } from './services/auth';
 
 export default function App() {
@@ -41,17 +39,10 @@ export default function App() {
           <span style={{ margin: '0 12px' }}>|</span>
           <Link to="/admin/login" style={{ marginRight: 12 }}>Admin Login</Link>
           <Link to="/admin/signup">Admin Signup</Link>
-          {currentUser?.role === 'SUPPLIER' && (
-            <>
-              <span style={{ margin: '0 12px' }}>|</span>
-              <Link to="/supplier">Supplier Hub</Link>
-            </>
-          )}
           {currentUser?.role === 'ADMIN' && (
             <>
               <span style={{ margin: '0 12px' }}>|</span>
-              <Link to="/admin/users" style={{ marginRight: 12 }}>Admin Users</Link>
-              <Link to="/admin/suppliers">Supplier Queue</Link>
+              <Link to="/admin/users" style={{ marginRight: 12 }}>Users</Link>
             </>
           )}
         </nav>
@@ -64,9 +55,7 @@ export default function App() {
           <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
           <Route path="/products/new" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
           <Route path="/products/:id/edit" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
-          <Route path="/supplier" element={<ProtectedRoute roles={["SUPPLIER", "ADMIN"]}><SupplierHub /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute roles={["ADMIN"]}><AdminUsers /></ProtectedRoute>} />
-          <Route path="/admin/suppliers" element={<ProtectedRoute roles={["ADMIN"]}><AdminSuppliers /></ProtectedRoute>} />
         </Routes>
       </div>
     </BrowserRouter>

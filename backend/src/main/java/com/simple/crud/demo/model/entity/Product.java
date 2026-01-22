@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"owner", "supplier"}) // Exclude lazy-loaded relationships
+@ToString(exclude = {"owner"}) // Exclude lazy-loaded relationships
 public class Product {
 
     @Id
@@ -55,10 +55,6 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id")
-    private User supplier;
 
     // Custom constructor for backward compatibility
     public Product(String name, String description, BigDecimal price, Integer stockQuantity) {

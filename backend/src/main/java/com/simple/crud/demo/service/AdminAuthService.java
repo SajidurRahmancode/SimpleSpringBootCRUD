@@ -30,9 +30,6 @@ public class AdminAuthService {
     private String configuredAdminSecret;
 
     public AuthResponseDto registerAdmin(AdminRegisterDto userCreateDto) {
-        log.info("Admin registration attempt for username: {}, email: {}", 
-                userCreateDto.getUsername(), userCreateDto.getEmail());
-        
         if (!userCreateDto.getAdminSecret().equals(configuredAdminSecret)) {
             log.error("SECURITY: Admin registration failed - invalid admin secret for username: {}", 
                     userCreateDto.getUsername());
@@ -56,7 +53,7 @@ public class AdminAuthService {
         admin.setRole(User.Role.ADMIN);
 
         User savedAdmin = userRepository.save(admin);
-        log.info("AUDIT: Admin account created successfully - adminId: {}, username: {}", 
+        log.info("AUDIT: Admin account created - adminId: {}, username: {}", 
                 savedAdmin.getId(), savedAdmin.getUsername());
         
         UserResponseDto adminDto = new UserResponseDto(savedAdmin);
@@ -64,19 +61,16 @@ public class AdminAuthService {
                 adminDto.getUsername(), null,
                 List.of(new SimpleGrantedAuthority("ROLE_" + adminDto.getRole().name())));
         String token = jwtTokenProvider.generateToken(auth, adminDto.getId());
-        log.debug("JWT token generated for adminId: {}", adminDto.getId());
         return new AuthResponseDto(token, adminDto);
     }
 
     public Optional<AuthResponseDto> loginAdmin(String username, String password) {
-        log.info("Admin login attempt for username: {}", username);
-        
         Optional<User> userOpt = userRepository.findByUsername(username);
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (user.getRole() == User.Role.ADMIN && passwordEncoder.matches(password, user.getPassword())) {
-                log.info("AUDIT: Admin logged in successfully - adminId: {}, username: {}", 
+                log.info("AUDIT: Admin logged in - adminId: {}, username: {}", 
                         user.getId(), user.getUsername());
                 
                 UserResponseDto adminDto = new UserResponseDto(user);
@@ -84,7 +78,6 @@ public class AdminAuthService {
                         adminDto.getUsername(), null,
                         List.of(new SimpleGrantedAuthority("ROLE_" + adminDto.getRole().name())));
                 String token = jwtTokenProvider.generateToken(auth, adminDto.getId());
-                log.debug("JWT token generated for adminId: {}", adminDto.getId());
                 return Optional.of(new AuthResponseDto(token, adminDto));
             }
         }
@@ -94,7 +87,6 @@ public class AdminAuthService {
     }
 
     public Optional<UserResponseDto> getAdminByUsername(String username) {
-        log.debug("Fetching admin profile for username: {}", username);
         Optional<UserResponseDto> result = userRepository.findByUsername(username)
                 .filter(user -> user.getRole() == User.Role.ADMIN)
                 .map(UserResponseDto::new);

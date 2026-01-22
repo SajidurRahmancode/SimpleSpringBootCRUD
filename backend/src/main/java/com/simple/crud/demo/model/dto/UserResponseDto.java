@@ -16,8 +16,6 @@ public class UserResponseDto {
     private User.Role role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime supplierSince;
-    private String supplierProfile;
 
     // Custom constructor for entity mapping
     public UserResponseDto(User user) {
@@ -27,7 +25,5 @@ public class UserResponseDto {
         this.role = user.getRole();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
-        this.supplierSince = user.getSupplierSince();
-        this.supplierProfile = user.getSupplierProfile();
     }
 }

@@ -28,8 +28,6 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
 
     public AuthResponseDto register(UserCreateDto dto) {
-        log.info("Registration attempt for username: {}, email: {}", dto.getUsername(), dto.getEmail());
-        
         if (userRepository.existsByUsername(dto.getUsername())) {
             log.warn("Registration failed - username already exists: {}", dto.getUsername());
             throw new RuntimeException("Username already exists");
@@ -45,20 +43,17 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(User.Role.USER);
         userRepository.save(user);
-        log.info("User registered successfully - userId: {}, username: {}", user.getId(), user.getUsername());
+        log.info("AUDIT: User registered - userId: {}, username: {}", user.getId(), user.getUsername());
 
         UserResponseDto userDto = new UserResponseDto(user);
         var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                 user.getUsername(), null,
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
         String token = jwtTokenProvider.generateToken(auth, user.getId());
-        log.debug("JWT token generated for userId: {}", user.getId());
         return new AuthResponseDto(token, userDto);
     }
 
     public AuthResponseDto login(LoginRequestDto req) {
-        log.info("Login attempt with identifier: {}", req.getIdentifier());
-        
         Optional<User> userOpt = userRepository.findByUsername(req.getIdentifier())
                 .or(() -> userRepository.findByEmail(req.getIdentifier()));
         if (userOpt.isEmpty()) {
@@ -72,7 +67,7 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials");
         }
         
-        log.info("User logged in successfully - userId: {}, username: {}, role: {}", 
+        log.info("AUDIT: User logged in - userId: {}, username: {}, role: {}", 
                 user.getId(), user.getUsername(), user.getRole());
         
         UserResponseDto userDto = new UserResponseDto(user);
@@ -80,13 +75,11 @@ public class AuthService {
                 user.getUsername(), null,
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
         String token = jwtTokenProvider.generateToken(auth, user.getId());
-        log.debug("JWT token generated for userId: {}", user.getId());
         return new AuthResponseDto(token, userDto);
     }
 
     @Transactional(readOnly = true)
     public Optional<UserResponseDto> me(Long userId) {
-        log.debug("Fetching user profile for userId: {}", userId);
         Optional<UserResponseDto> result = userRepository.findById(userId).map(UserResponseDto::new);
         if (result.isEmpty()) {
             log.warn("User profile not found for userId: {}", userId);
@@ -96,7 +89,6 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public Optional<UserResponseDto> meByPrincipal(String principal) {
-        log.debug("Fetching user profile by principal: {}", principal);
         Optional<UserResponseDto> result = userRepository.findByUsername(principal)
                 .or(() -> userRepository.findByEmail(principal))
                 .map(UserResponseDto::new);

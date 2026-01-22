@@ -23,6 +23,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findProductsWithLowStock(@Param("threshold") Integer threshold);
 
     Page<Product> findByOwner_Id(Long ownerId, Pageable pageable);
-
-    Page<Product> findBySupplier_Id(Long supplierId, Pageable pageable);
 }

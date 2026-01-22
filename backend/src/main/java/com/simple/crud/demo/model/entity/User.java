@@ -49,12 +49,6 @@ public class User {
     @Builder.Default
     private Role role = Role.USER;
 
-    @Column(name = "supplier_since")
-    private LocalDateTime supplierSince;
-
-    @Column(name = "supplier_profile", length = 1000)
-    private String supplierProfile;
-
     // Custom constructor for backward compatibility
     public User(String username, String email, String password) {
         this();
@@ -71,6 +65,6 @@ public class User {
     }
 
     public enum Role {
-        USER, SUPPLIER, ADMIN
+        USER, ADMIN
     }
 }

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 
 @Component
-@Order(1) // Execute early in the filter chain
+@Order(1) 
 public class LoggingMDCFilter implements Filter {
 
     private static final String REQUEST_ID_KEY = "requestId";
@@ -54,7 +54,6 @@ public class LoggingMDCFilter implements Filter {
             chain.doFilter(request, response);
             
         } finally {
-            // CRITICAL: Always clear MDC to prevent memory leaks and context pollution
             // Thread pools reuse threads, so MDC must be cleaned up
             MDC.clear();
         }

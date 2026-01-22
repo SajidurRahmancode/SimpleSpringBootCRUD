@@ -42,12 +42,8 @@ public class FileStorageService {
 
     public String storeImage(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
-            log.debug("File upload skipped - file is null or empty");
             return null;
         }
-        
-        log.info("Processing image upload - originalFilename: '{}', size: {} bytes, contentType: {}", 
-                file.getOriginalFilename(), file.getSize(), file.getContentType());
         
         if (file.getSize() > maxImageSizeBytes) {
             log.error("File upload rejected - size exceeds limit - filename: '{}', size: {} bytes, limit: {} bytes", 
@@ -73,8 +69,6 @@ public class FileStorageService {
         try {
             Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
             String publicPath = "/uploads/" + filename;
-            log.info("Image stored successfully - originalFilename: '{}', storedFilename: '{}', publicPath: '{}', size: {} bytes", 
-                    original, filename, publicPath, file.getSize());
             // Return public path served by WebMvcConfig
             return publicPath;
         } catch (IOException ex) {

@@ -12,8 +12,6 @@ import com.simple.crud.demo.model.entity.Product;
 public interface ProductMapper {
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "ownerUsername", source = "owner.username")
-    @Mapping(target = "supplierId", source = "supplier.id")
-    @Mapping(target = "supplierUsername", source = "supplier.username")
     ProductResponseDto toDto(Product entity);
     Product toEntity(ProductCreateDto dto);
     void updateEntityFromDto(ProductCreateDto dto, @MappingTarget Product entity);

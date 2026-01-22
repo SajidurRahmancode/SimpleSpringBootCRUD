@@ -21,8 +21,6 @@ public class ProductResponseDto {
     private LocalDateTime updatedAt;
     private Long ownerId;
     private String ownerUsername;
-    private Long supplierId;
-    private String supplierUsername;
 
     // Custom constructor for entity mapping
     public ProductResponseDto(Product product) {
@@ -37,10 +35,6 @@ public class ProductResponseDto {
         if (product.getOwner() != null) {
             this.ownerId = product.getOwner().getId();
             this.ownerUsername = product.getOwner().getUsername();
-        }
-        if (product.getSupplier() != null) {
-            this.supplierId = product.getSupplier().getId();
-            this.supplierUsername = product.getSupplier().getUsername();
         }
     }
 }

@@ -26,16 +26,12 @@ public class UserService {
     @Transactional(readOnly = true)
     @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public org.springframework.data.domain.Page<UserResponseDto> getAllUsers(org.springframework.data.domain.Pageable pageable) {
-        log.debug("Fetching all users - page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
-        org.springframework.data.domain.Page<UserResponseDto> result = userRepository.findAll(pageable).map(userMapper::toDto);
-        log.info("Retrieved {} users out of {} total", result.getNumberOfElements(), result.getTotalElements());
-        return result;
+        return userRepository.findAll(pageable).map(userMapper::toDto);
     }
 
     @Transactional(readOnly = true)
     @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public Optional<UserResponseDto> getUserById(Long id) {
-        log.debug("Fetching user by id: {}", id);
         Optional<UserResponseDto> result = userRepository.findById(id)
             .map(userMapper::toDto);
         if (result.isEmpty()) {
@@ -47,7 +43,6 @@ public class UserService {
     @Transactional(readOnly = true)
     @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public Optional<UserResponseDto> getUserByUsername(String username) {
-        log.debug("Fetching user by username: {}", username);
         Optional<UserResponseDto> result = userRepository.findByUsername(username)
             .map(userMapper::toDto);
         if (result.isEmpty()) {
@@ -132,7 +127,6 @@ public class UserService {
 
                     userMapper.updateEntityFromDto(userCreateDto, existingUser);
                     if (userCreateDto.getPassword() != null && !userCreateDto.getPassword().isEmpty()) {
-                        log.debug("Password updated for userId: {}", id);
                         existingUser.setPassword(passwordEncoder.encode(userCreateDto.getPassword()));
                     }
 
@@ -158,5 +152,4 @@ public class UserService {
         return false;
     }
 
-    // Validation moved to AuthController
 }
