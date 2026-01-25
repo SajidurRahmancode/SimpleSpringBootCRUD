@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +24,6 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "User authentication and registration endpoints")
-
 public class AuthController {
 
     private final AuthService authService;
@@ -31,14 +32,19 @@ public class AuthController {
     @Operation(
             summary = "Register new user",
             description = "Create a new user account with USER role",
+            requestBody = @RequestBody(
+                    description = "User registration details",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = UserCreateDto.class))
+            ),
             responses = {
                     @ApiResponse(responseCode = "201", description = "User created successfully",
                             content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid input or user already exists",
-                            content = @Content)
+                    @ApiResponse(responseCode = "400", description = "Invalid input or user already exists")
             }
     )
-    public ResponseEntity<?> register(@Valid @RequestBody UserCreateDto dto) {
+    public ResponseEntity<?> register(
+            @Valid @org.springframework.web.bind.annotation.RequestBody UserCreateDto dto) {
         try {
             AuthResponseDto auth = authService.register(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(auth);
@@ -51,14 +57,19 @@ public class AuthController {
     @Operation(
             summary = "User login",
             description = "Authenticate user and receive JWT token",
+            requestBody = @RequestBody(
+                    description = "Login credentials (username and password)",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = LoginRequestDto.class))
+            ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Login successful",
                             content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
-                    @ApiResponse(responseCode = "401", description = "Invalid credentials",
-                            content = @Content)
+                    @ApiResponse(responseCode = "401", description = "Invalid credentials")
             }
     )
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto req) {
+    public ResponseEntity<?> login(
+            @Valid @org.springframework.web.bind.annotation.RequestBody LoginRequestDto req) {
         try {
             AuthResponseDto auth = authService.login(req);
             return ResponseEntity.ok(auth);
@@ -69,13 +80,12 @@ public class AuthController {
 
     @GetMapping("/me")
     @Operation(
-            summary = "Get current user info",
-            description = "Retrieve information about the currently authenticated user",
+            summary = "Get current user",
+            description = "Get authenticated user's profile information",
+            security = @SecurityRequirement(name = "bearerAuth"),
             responses = {
-                    @ApiResponse(responseCode = "200", description = "User info retrieved successfully",
-                            content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized",
-                            content = @Content)
+                    @ApiResponse(responseCode = "200", description = "User found"),
+                    @ApiResponse(responseCode = "401", description = "Not authenticated")
             }
     )
     public ResponseEntity<?> me(org.springframework.security.core.Authentication authentication) {

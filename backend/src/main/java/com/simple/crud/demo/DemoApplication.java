@@ -23,11 +23,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                         - Role-Based Access (USER, ADMIN)
                         - Product Management
                         - Image Upload Support
-                        """,
-                contact = @Contact(
-                        name = "API Support",
-                        email = "support@example.com"
-                )
+                        """
         ),
         servers = {
                 @Server(
