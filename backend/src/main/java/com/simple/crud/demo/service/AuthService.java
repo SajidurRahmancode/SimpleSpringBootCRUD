@@ -7,6 +7,7 @@ import com.simple.crud.demo.model.dto.UserResponseDto;
 import com.simple.crud.demo.model.entity.User;
 import com.simple.crud.demo.repository.UserRepository;
 import com.simple.crud.demo.security.JwtTokenProvider;
+import com.simple.crud.demo.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,6 +27,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserMapper userMapper;
 
     public AuthResponseDto register(UserCreateDto dto) {
         if (userRepository.existsByUsername(dto.getUsername())) {
@@ -45,7 +47,7 @@ public class AuthService {
         userRepository.save(user);
         log.info("AUDIT: User registered - userId: {}, username: {}", user.getId(), user.getUsername());
 
-        UserResponseDto userDto = new UserResponseDto(user);
+        UserResponseDto userDto = userMapper.toDto(user);
         var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                 user.getUsername(), null,
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
@@ -70,7 +72,7 @@ public class AuthService {
         log.info("AUDIT: User logged in - userId: {}, username: {}, role: {}", 
                 user.getId(), user.getUsername(), user.getRole());
         
-        UserResponseDto userDto = new UserResponseDto(user);
+        UserResponseDto userDto = userMapper.toDto(user);
         var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                 user.getUsername(), null,
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
@@ -80,7 +82,7 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public Optional<UserResponseDto> me(Long userId) {
-        Optional<UserResponseDto> result = userRepository.findById(userId).map(UserResponseDto::new);
+        Optional<UserResponseDto> result = userRepository.findById(userId).map(userMapper::toDto);
         if (result.isEmpty()) {
             log.warn("User profile not found for userId: {}", userId);
         }
@@ -91,7 +93,7 @@ public class AuthService {
     public Optional<UserResponseDto> meByPrincipal(String principal) {
         Optional<UserResponseDto> result = userRepository.findByUsername(principal)
                 .or(() -> userRepository.findByEmail(principal))
-                .map(UserResponseDto::new);
+                .map(userMapper::toDto);
         if (result.isEmpty()) {
             log.warn("User profile not found for principal: {}", principal);
         }

@@ -103,7 +103,7 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
         log.info("AUDIT: Admin user created - adminId: {}, username: {}", savedUser.getId(), savedUser.getUsername());
-        return new UserResponseDto(savedUser);
+        return userMapper.toDto(savedUser);
     }
 
     @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")

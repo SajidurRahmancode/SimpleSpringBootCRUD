@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.simple.crud.demo.model.entity.User;
 import com.simple.crud.demo.repository.UserRepository;
 import com.simple.crud.demo.security.JwtTokenProvider;
+import com.simple.crud.demo.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,6 +27,7 @@ public class AdminAuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserMapper userMapper;
     @Value("${app.admin.secret}")
     private String configuredAdminSecret;
 
@@ -56,7 +58,7 @@ public class AdminAuthService {
         log.info("AUDIT: Admin account created - adminId: {}, username: {}", 
                 savedAdmin.getId(), savedAdmin.getUsername());
         
-        UserResponseDto adminDto = new UserResponseDto(savedAdmin);
+        UserResponseDto adminDto = userMapper.toDto(savedAdmin);
         var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                 adminDto.getUsername(), null,
                 List.of(new SimpleGrantedAuthority("ROLE_" + adminDto.getRole().name())));
@@ -73,7 +75,7 @@ public class AdminAuthService {
                 log.info("AUDIT: Admin logged in - adminId: {}, username: {}", 
                         user.getId(), user.getUsername());
                 
-                UserResponseDto adminDto = new UserResponseDto(user);
+                UserResponseDto adminDto = userMapper.toDto(user);
                 var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                         adminDto.getUsername(), null,
                         List.of(new SimpleGrantedAuthority("ROLE_" + adminDto.getRole().name())));
@@ -89,7 +91,7 @@ public class AdminAuthService {
     public Optional<UserResponseDto> getAdminByUsername(String username) {
         Optional<UserResponseDto> result = userRepository.findByUsername(username)
                 .filter(user -> user.getRole() == User.Role.ADMIN)
-                .map(UserResponseDto::new);
+                .map(userMapper::toDto);
         if (result.isEmpty()) {
             log.warn("Admin profile not found for username: {}", username);
         }

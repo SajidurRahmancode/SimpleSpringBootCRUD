@@ -1,6 +1,6 @@
 # SimpleSpringBootCRUD
 
-A full-stack web application built with Spring Boot and React that provides a comprehensive CRUD (Create, Read, Update, Delete) system for product management with user authentication, role-based access control, and supplier management features.
+A full-stack web application built with Spring Boot and React that provides a comprehensive CRUD (Create, Read, Update, Delete) system for product management with user authentication, role-based access control management features.
 
 ## 📋 Table of Contents
 
@@ -18,7 +18,7 @@ A full-stack web application built with Spring Boot and React that provides a co
 
 ### User Management
 - **User Registration & Authentication**: Secure signup and login with JWT token-based authentication
-- **Role-Based Access Control**: Support for multiple user roles (USER, ADMIN, SUPPLIER)
+- **Role-Based Access Control**: Support for multiple user roles (USER, ADMIN)
 - **User Profile Management**: View and update user information
 - **Admin User Management**: Admins can view, update, and delete users
 
@@ -27,19 +27,11 @@ A full-stack web application built with Spring Boot and React that provides a co
 - **Image Upload**: Support for product image uploads (up to 5MB)
 - **Product Search**: Search products by name or description
 - **Stock Management**: Track product stock quantities and identify low-stock items
-- **Supplier Association**: Products can be linked to supplier accounts
 
-### Supplier Features
-- **Supplier Applications**: Users can apply to become suppliers
-- **Supplier Dashboard**: Dedicated dashboard for supplier accounts
-- **Supplier Product Management**: Suppliers can manage their own products
-- **Application Review**: Admins can review and approve/reject supplier applications
 
 ### Admin Features
 - **Admin Authentication**: Secure admin signup with secret key
 - **User Management**: View and manage all users in the system
-- **Supplier Management**: Review supplier applications and manage supplier accounts
-- **Full Product Access**: View and manage all products across all suppliers
 
 ### Security Features
 - **JWT Authentication**: Stateless token-based authentication
@@ -147,8 +139,6 @@ spring.flyway.enabled=true
 
 Otherwise, manually run the migration scripts located in `backend/src/main/resources/db/migration/`:
 - `V1__init.sql` - Initial schema
-- `V2__supplier_feature.sql` - Supplier features
-- `V3__fix_role_column.sql` - Role column adjustments
 
 ### 3. Backend Setup
 
@@ -267,19 +257,19 @@ SimpleSpringBootCRUD/
     │   ├── pages/                    # Page components
     │   │   ├── AdminLogin.jsx
     │   │   ├── AdminSignup.jsx
-    │   │   ├── AdminSuppliers.jsx
+    │   │ 
     │   │   ├── AdminUsers.jsx
     │   │   ├── Home.jsx
     │   │   ├── Login.jsx
     │   │   ├── ProductForm.jsx
     │   │   ├── Products.jsx
     │   │   ├── Signup.jsx
-    │   │   └── SupplierHub.jsx
+    │   │ 
     │   ├── services/                 # API service layer
     │   │   ├── api.js
     │   │   ├── auth.js
     │   │   ├── products.js
-    │   │   └── supplier.js
+    │   │   └
     │   ├── App.js
     │   └── index.js
     └── package.json                  # npm dependencies
@@ -314,29 +304,11 @@ SimpleSpringBootCRUD/
 | GET | `/api/products/{id}` | Get product by ID | Authenticated |
 | GET | `/api/products/search` | Search products | Authenticated |
 | GET | `/api/products/in-stock` | Get in-stock products | Authenticated |
-| GET | `/api/products/low-stock` | Get low-stock products | Admin/Supplier |
 | GET | `/api/products/my` | Get user's products | User |
-| GET | `/api/products/supplied` | Get supplier's products | Supplier |
-| POST | `/api/products` | Create product | Admin/Supplier |
-| PUT | `/api/products/{id}` | Update product | Admin/Supplier |
-| DELETE | `/api/products/{id}` | Delete product | Admin/Supplier |
 
-### Supplier Endpoints
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| POST | `/api/suppliers/applications` | Apply to become supplier | User |
-| GET | `/api/suppliers/applications/me` | Get my applications | User |
-| GET | `/api/suppliers/dashboard` | Get supplier dashboard | Supplier |
 
-### Admin Supplier Management
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| GET | `/api/admin/suppliers/applications` | Get all applications | Admin |
-| GET | `/api/admin/suppliers/applications/{id}` | Get application details | Admin |
-| PUT | `/api/admin/suppliers/applications/{id}/approve` | Approve application | Admin |
-| PUT | `/api/admin/suppliers/applications/{id}/reject` | Reject application | Admin |
 
 ## ⚙️ Configuration
 
@@ -389,8 +361,6 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
-    supplier_since DATETIME NULL,
-    supplier_profile VARCHAR(1000),
     created_at DATETIME,
     updated_at DATETIME
 );
@@ -404,31 +374,12 @@ CREATE TABLE products (
     description VARCHAR(500),
     price DECIMAL(10,2) NOT NULL,
     stock_quantity INT NOT NULL,
-    supplier_id BIGINT NULL,
     created_at DATETIME,
     updated_at DATETIME,
-    FOREIGN KEY (supplier_id) REFERENCES users(id)
 );
 ```
 
-### Supplier Applications Table
-```sql
-CREATE TABLE supplier_applications (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    applicant_id BIGINT NOT NULL,
-    business_name VARCHAR(150) NOT NULL,
-    business_email VARCHAR(255) NOT NULL,
-    business_phone VARCHAR(50),
-    website VARCHAR(255),
-    message TEXT,
-    status VARCHAR(20) NOT NULL,
-    submitted_at DATETIME NOT NULL,
-    reviewed_at DATETIME,
-    reviewed_by VARCHAR(100),
-    admin_note VARCHAR(500),
-    FOREIGN KEY (applicant_id) REFERENCES users(id)
-);
-```
+
 
 ## 📝 Logging
 

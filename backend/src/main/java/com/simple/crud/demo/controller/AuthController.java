@@ -4,6 +4,12 @@ import com.simple.crud.demo.model.dto.AuthResponseDto;
 import com.simple.crud.demo.model.dto.LoginRequestDto;
 import com.simple.crud.demo.model.dto.UserCreateDto;
 import com.simple.crud.demo.service.AuthService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,11 +21,23 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "User authentication and registration endpoints")
+
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/register")
+    @Operation(
+            summary = "Register new user",
+            description = "Create a new user account with USER role",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "User created successfully",
+                            content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid input or user already exists",
+                            content = @Content)
+            }
+    )
     public ResponseEntity<?> register(@Valid @RequestBody UserCreateDto dto) {
         try {
             AuthResponseDto auth = authService.register(dto);
@@ -30,6 +48,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(
+            summary = "User login",
+            description = "Authenticate user and receive JWT token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Login successful",
+                            content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                            content = @Content)
+            }
+    )
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto req) {
         try {
             AuthResponseDto auth = authService.login(req);
@@ -40,6 +68,16 @@ public class AuthController {
     }
 
     @GetMapping("/me")
+    @Operation(
+            summary = "Get current user info",
+            description = "Retrieve information about the currently authenticated user",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User info retrieved successfully",
+                            content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized",
+                            content = @Content)
+            }
+    )
     public ResponseEntity<?> me(org.springframework.security.core.Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
