@@ -51,24 +51,26 @@ public class Product {
 
     @Column(name = "image_path")
     private String imagePath;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    private User owner;
+//FetchType.EAGER	Loads immediately
+//FetchType.LAZY	Loads when the page is accessed
+    @ManyToOne(fetch = FetchType.LAZY)  //many products can belong to one user
+    @JoinColumn(name = "owner_id") //foreign key column
+    private User owner; //owner of the product
 
     // Custom constructor for backward compatibility
-    public Product(String name, String description, BigDecimal price, Integer stockQuantity) {
-        this();
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.stockQuantity = stockQuantity;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    public Product(String name, String description, BigDecimal price, Integer stockQuantity) { // No 'id' parameter
+        this();// Calls the no-args constructor to initialize default values
+        this.name = name; // Sets the product name
+        this.description = description; // Sets the product description
+        this.price = price; // Sets the product price
+        this.stockQuantity = stockQuantity; // Sets the stock quantity
+        this.createdAt = LocalDateTime.now(); // Initializes createdAt timestamps
+        this.updatedAt = LocalDateTime.now(); // Initializes updatedAt timestamps
+
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    @PreUpdate // JPA lifecycle callback to update timestamp
+    public void preUpdate() { // Method called before entity update
+        this.updatedAt = LocalDateTime.now(); // Updates the 'updatedAt' timestamp
     }
 }

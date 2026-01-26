@@ -9,9 +9,14 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Profile;
 
-@OpenAPIDefinition(
+
+@Profile("!prod") // Only apply OpenAPI in non-production
+@OpenAPIDefinition( 
+        // Sets the API metadata information
         info = @Info(
+                // Title of the API
                 title = "Simple Spring Boot CRUD API",
                 version = "1.0.0",
                 description = """
@@ -26,7 +31,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                         """
         ),
         servers = {
+                // Development server configuration
                 @Server(
+                        // URL of the development server
                         url = "http://localhost:8082",
                         description = "Development Server"
                 )
@@ -34,9 +41,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 )
 @SecurityScheme(
         name = "bearerAuth",
+        // Specifies the type of security scheme
         type = SecuritySchemeType.HTTP,
+        // Specifies the HTTP authentication scheme
         scheme = "bearer",
+        // Specifies the format of the bearer token
         bearerFormat = "JWT",
+        // Description of the security scheme
         description = "JWT authentication token. Format: 'Bearer {token}'"
 )
 @SpringBootApplication

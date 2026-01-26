@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.tags.Tag;
 import org.springframework.context.annotation.Bean;
 // Imports the Configuration annotation to mark this class as a Spring configuration class
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 // Imports the List utility for creating immutable lists
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.List;
 // Marks this class as a Spring configuration class that can provide bean definitions
 @Configuration
 // Declares the public configuration class for OpenAPI settings
+@Profile("!prod") // Only active when NOT in production
+// This annotation specifies that the configuration is only active for non-production profiles
 public class OpenApiConfig {
 
     // Marks this method as a Spring bean producer that will be managed by the Spring container
