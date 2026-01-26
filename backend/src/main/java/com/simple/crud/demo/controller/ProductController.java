@@ -52,7 +52,7 @@ public class ProductController {
                     name = "page",
                     description = "Page number (0-based)",
                     example = "0",
-                    in = ParameterIn.QUERY // where the parameter is located
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL // This value comes after the ? in the URL// where the parameter is located
             )
             @RequestParam(value = "page", defaultValue = "0") int page,
             
@@ -60,7 +60,7 @@ public class ProductController {
                     name = "size",
                     description = "Page size",
                     example = "10",
-                    in = ParameterIn.QUERY // where the parameter is located
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL // This value comes after the ? in the URL// where the parameter is located
             )
             @RequestParam(value = "size", defaultValue = "10") int size,
             
@@ -68,7 +68,7 @@ public class ProductController {
                     name = "sort",
                     description = "Sort criteria (field,direction)",
                     example = "name,asc",
-                    in = ParameterIn.QUERY // where the parameter is located
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL // This value comes after the ? in the URL
             )
             @RequestParam(value = "sort", defaultValue = "id,asc") String sort) {
                 // Parse sort parameter
@@ -103,7 +103,7 @@ public class ProductController {
                     name = "page",
                     description = "Page number (0-based)",
                     example = "0",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL
             )
             @RequestParam(value = "page", defaultValue = "0") int page,
             
@@ -111,7 +111,7 @@ public class ProductController {
                     name = "size",
                     description = "Page size",
                     example = "10",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL
             )
             @RequestParam(value = "size", defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -135,7 +135,7 @@ public class ProductController {
                     description = "Product ID",
                     required = true,
                     example = "1",
-                    in = ParameterIn.PATH
+                    in = ParameterIn.PATH //parameter is taken from the URL path
             )
             @PathVariable Long id) {
         Optional<ProductResponseDto> product = productService.getProductById(id);
@@ -158,7 +158,7 @@ public class ProductController {
                     description = "Search query",
                     required = true,
                     example = "laptop",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL
             )
             @RequestParam(name = "q") String query,
             
@@ -166,7 +166,7 @@ public class ProductController {
                     name = "page",
                     description = "Page number (0-based)",
                     example = "0",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL
             )
             @RequestParam(value = "page", defaultValue = "0") int page,
             
@@ -174,7 +174,7 @@ public class ProductController {
                     name = "size",
                     description = "Page size",
                     example = "10",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL
             )
             @RequestParam(value = "size", defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -264,7 +264,7 @@ public class ProductController {
                     description = "Product ID to update",
                     required = true,
                     example = "1",
-                    in = ParameterIn.PATH
+                    in = ParameterIn.PATH //parameter is taken from the URL path
             )
             @PathVariable Long id,
             @Valid @RequestBody ProductCreateDto productCreateDto) {
@@ -299,7 +299,7 @@ public class ProductController {
                     description = "Product ID to delete",
                     required = true,
                     example = "1",
-                    in = ParameterIn.PATH
+                    in = ParameterIn.PATH //parameter is taken from the URL path
             )
             @PathVariable Long id) {
         try {

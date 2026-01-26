@@ -48,8 +48,8 @@ public class SecurityConfig {
                 // Swagger/OpenAPI endpoints
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 // Admin-only endpoints
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/users/**").hasRole("ADMIN")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin role required for /api/admin/**
+                .requestMatchers("/api/users/**").hasRole("ADMIN") // Admin role required for /api/users/**
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             )

@@ -45,7 +45,7 @@ public class UserController {
                     name = "page",
                     description = "Page number (0-based)",
                     example = "0",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL
             )
             @RequestParam(value = "page", defaultValue = "0") int page,
 
@@ -53,7 +53,7 @@ public class UserController {
                     name = "size",
                     description = "Page size",
                     example = "10",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // This value comes after the ? in the URL
             )
             @RequestParam(value = "size", defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -78,7 +78,7 @@ public class UserController {
                     description = "User ID",
                     required = true,
                     example = "1",
-                    in = ParameterIn.PATH
+                    in = ParameterIn.PATH //parameter is taken from the URL path //
             )
             @PathVariable Long id) {
         Optional<UserResponseDto> user = userService.getUserById(id);
@@ -102,7 +102,7 @@ public class UserController {
                     description = "User ID to delete",
                     required = true,
                     example = "1",
-                    in = ParameterIn.PATH
+                    in = ParameterIn.PATH //parameter is taken from the URL path
             )
             @PathVariable Long id) {
         boolean deleted = userService.deleteUser(id);
