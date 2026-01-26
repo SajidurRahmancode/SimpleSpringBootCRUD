@@ -12,8 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,7 +52,7 @@ public class ProductController {
                     name = "page",
                     description = "Page number (0-based)",
                     example = "0",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // where the parameter is located
             )
             @RequestParam(value = "page", defaultValue = "0") int page,
             
@@ -60,7 +60,7 @@ public class ProductController {
                     name = "size",
                     description = "Page size",
                     example = "10",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // where the parameter is located
             )
             @RequestParam(value = "size", defaultValue = "10") int size,
             
@@ -68,7 +68,7 @@ public class ProductController {
                     name = "sort",
                     description = "Sort criteria (field,direction)",
                     example = "name,asc",
-                    in = ParameterIn.QUERY
+                    in = ParameterIn.QUERY // where the parameter is located
             )
             @RequestParam(value = "sort", defaultValue = "id,asc") String sort) {
                 // Parse sort parameter
@@ -187,7 +187,7 @@ public class ProductController {
             summary = "Create product (JSON)",
             description = "Create a new product without image",
             security = @SecurityRequirement(name = "bearerAuth"),
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Product creation details",
                     required = true,
                     content = @Content(schema = @Schema(implementation = ProductCreateDto.class))
@@ -200,7 +200,7 @@ public class ProductController {
             }
     )
     public ResponseEntity<?> createProduct(
-            @Valid @org.springframework.web.bind.annotation.RequestBody ProductCreateDto productCreateDto) {
+            @Valid @RequestBody ProductCreateDto productCreateDto) {
         try {
             ProductResponseDto created = productService.createProduct(productCreateDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -246,7 +246,7 @@ public class ProductController {
             summary = "Update product",
             description = "Update an existing product. Only owner or admin can update.",
             security = @SecurityRequirement(name = "bearerAuth"),
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Updated product details",
                     required = true,
                     content = @Content(schema = @Schema(implementation = ProductCreateDto.class))
@@ -267,7 +267,7 @@ public class ProductController {
                     in = ParameterIn.PATH
             )
             @PathVariable Long id,
-            @Valid @org.springframework.web.bind.annotation.RequestBody ProductCreateDto productCreateDto) {
+            @Valid @RequestBody ProductCreateDto productCreateDto) {
         try {
             Optional<ProductResponseDto> updated = productService.updateProduct(id, productCreateDto);
             if (updated.isPresent()) {

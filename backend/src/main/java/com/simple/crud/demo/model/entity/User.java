@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@EqualsAndHashCode(of = "id")
-@ToString
+@Builder // Implements the builder pattern for object creation
+@EqualsAndHashCode(of = "id") // Equality based on 'id' field only
+@ToString // Generates a toString method
 public class User {
 
     @Id
@@ -45,8 +45,8 @@ public class User {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
+    @Enumerated(EnumType.STRING) //store enum as string in DB
+    @Builder.Default // Default value for builder pattern
     private Role role = Role.USER;
 
     // Custom constructor for backward compatibility

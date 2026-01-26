@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,7 +33,7 @@ public class AdminAuthController {
     @Operation(
             summary = "Admin registration",
             description = "Register a new admin account. Requires admin secret key configured in application.properties (app.admin.secret)",
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(  // Description of the request body
                     description = "Admin registration details including secret key",
                     required = true,
                     content = @Content(schema = @Schema(implementation = AdminRegisterDto.class))
@@ -46,7 +45,7 @@ public class AdminAuthController {
             }
     )
     public ResponseEntity<?> registerAdmin(
-            @Valid @org.springframework.web.bind.annotation.RequestBody AdminRegisterDto userCreateDto) {
+            @Valid @RequestBody AdminRegisterDto userCreateDto) {
         AuthResponseDto auth = adminAuthService.registerAdmin(userCreateDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(auth);
     }
@@ -55,7 +54,7 @@ public class AdminAuthController {
     @Operation(
             summary = "Admin login",
             description = "Authenticate admin user and receive JWT token",
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(  // Description of the request body
                     description = "Admin login credentials (username and password)",
                     required = true,
                     content = @Content(
@@ -71,8 +70,9 @@ public class AdminAuthController {
                     @ApiResponse(responseCode = "400", description = "Username and password are required")
             }
     )
-    public ResponseEntity<?> loginAdmin(
-            @org.springframework.web.bind.annotation.RequestBody Map<String, String> credentials) {
+    // Handles POST requests to /api/admin/auth/login for admin login
+    public ResponseEntity<?> loginAdmin( 
+            @RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
         String password = credentials.get("password");
 
@@ -84,7 +84,8 @@ public class AdminAuthController {
         if (auth.isPresent()) {
             return ResponseEntity.ok(auth.get());
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED) 
+            // Returns 401 Unauthorized if login fails
                     .body(Map.of("error", "Invalid admin credentials"));
         }
     }
@@ -105,7 +106,7 @@ public class AdminAuthController {
                     description = "Admin username",
                     required = true,
                     example = "admin",
-                    in = ParameterIn.PATH
+                    in = ParameterIn.PATH //parameter is taken from the URL path
             )
             @PathVariable String username) {
         Optional<UserResponseDto> admin = adminAuthService.getAdminByUsername(username);

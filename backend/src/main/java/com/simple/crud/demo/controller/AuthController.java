@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +31,7 @@ public class AuthController {
     @Operation(
             summary = "Register new user",
             description = "Create a new user account with USER role",
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(  // Description of the request body
                     description = "User registration details",
                     required = true,
                     content = @Content(schema = @Schema(implementation = UserCreateDto.class))
@@ -44,7 +43,7 @@ public class AuthController {
             }
     )
     public ResponseEntity<?> register(
-            @Valid @org.springframework.web.bind.annotation.RequestBody UserCreateDto dto) {
+            @Valid @RequestBody UserCreateDto dto) {
         try {
             AuthResponseDto auth = authService.register(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(auth);
@@ -57,7 +56,7 @@ public class AuthController {
     @Operation(
             summary = "User login",
             description = "Authenticate user and receive JWT token",
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Login credentials (username and password)",
                     required = true,
                     content = @Content(schema = @Schema(implementation = LoginRequestDto.class))
@@ -69,7 +68,7 @@ public class AuthController {
             }
     )
     public ResponseEntity<?> login(
-            @Valid @org.springframework.web.bind.annotation.RequestBody LoginRequestDto req) {
+            @Valid @RequestBody LoginRequestDto req) {
         try {
             AuthResponseDto auth = authService.login(req);
             return ResponseEntity.ok(auth);

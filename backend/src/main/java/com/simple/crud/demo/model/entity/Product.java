@@ -5,19 +5,19 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.*; // Lombok annotations for boilerplate code generation
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.math.BigDecimal; // For precise representation of currency values
+import java.time.LocalDateTime; // For date-time fields
 
-@Entity
+@Entity // Marks this class as a JPA entity mapped to a database table
 @Table(name = "products")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@EqualsAndHashCode(of = "id")
+@Getter // Generates getters for all fields
+@Setter // Generates setters for all fields
+@NoArgsConstructor // Generates a no-argument constructor
+@AllArgsConstructor // Generates a constructor with 1 parameter for each field in the class
+@Builder // Implements the builder pattern for object creation
+@EqualsAndHashCode(of = "id") // Equality based on 'id' field only
 @ToString(exclude = {"owner"}) // Exclude lazy-loaded relationships
 public class Product {
 
