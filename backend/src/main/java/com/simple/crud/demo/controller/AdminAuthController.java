@@ -33,7 +33,7 @@ public class AdminAuthController {
     @Operation(
             summary = "Admin registration",
             description = "Register a new admin account. Requires admin secret key configured in application.properties (app.admin.secret)",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(  // Description of the request body
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(  // Description of the request body full annotation added due to conflict with spring boots req body annotation
                     description = "Admin registration details including secret key",
                     required = true,
                     content = @Content(schema = @Schema(implementation = AdminRegisterDto.class))

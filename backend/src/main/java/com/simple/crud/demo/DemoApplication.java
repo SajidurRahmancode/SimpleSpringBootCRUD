@@ -41,13 +41,13 @@ import org.springframework.context.annotation.Profile;
 )
 @SecurityScheme(
         name = "bearerAuth",
-        // Specifies the type of security scheme
+        // Specifies the type of security scheme required for the API that requests authentication
         type = SecuritySchemeType.HTTP,
-        // Specifies the HTTP authentication scheme
+        // Specifies the HTTP authentication scheme to be used. API uses JWT tokens in the HTTP Authorization header, which is an HTTP authentication scheme.
         scheme = "bearer",
-        // Specifies the format of the bearer token
+        // Specifies the HTTP authentication scheme as "bearer".This tells clients to use the format Authorization: Bearer <token>
         bearerFormat = "JWT",
-        // Description of the security scheme
+        // Description of the security type
         description = "JWT authentication token. Format: 'Bearer {token}'"
 )
 @SpringBootApplication
