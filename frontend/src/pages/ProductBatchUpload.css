@@ -1,0 +1,353 @@
+.batch-upload-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.batch-upload-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.batch-upload-header h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.batch-upload-header p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.batch-upload-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Template Section */
+.template-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.template-section h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.template-section p {
+  margin: 0 0 1.5rem 0;
+  opacity: 0.9;
+}
+
+.btn-template {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-template:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Upload Section */
+.upload-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.file-drop-zone {
+  border: 3px dashed #cbd5e0;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f7fafc;
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.active {
+  border-color: #667eea;
+  background: #edf2f7;
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upload-icon {
+  width: 64px;
+  height: 64px;
+  color: #667eea;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.file-size {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.file-hint {
+  color: #999;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.upload-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.btn-upload,
+.btn-cancel,
+.btn-new-upload {
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-upload {
+  background: #667eea;
+  color: white;
+}
+
+.btn-upload:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-cancel {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-cancel:hover {
+  background: #cbd5e0;
+}
+
+.btn-new-upload {
+  background: #48bb78;
+  color: white;
+  margin-top: 1rem;
+}
+
+.btn-new-upload:hover {
+  background: #38a169;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+}
+
+/* Error Message */
+.error-message {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.error-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Job Status */
+.job-status {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.job-status h3 {
+  margin: 0 0 1.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-label {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.status-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.status-value.success {
+  color: #48bb78;
+}
+
+.status-value.error {
+  color: #f56565;
+}
+
+.status-value.warning {
+  color: #ed8936;
+}
+
+.status-completed {
+  color: #48bb78;
+}
+
+.status-failed {
+  color: #f56565;
+}
+
+.status-started,
+.status-starting {
+  color: #4299e1;
+}
+
+.status-stopped {
+  color: #ed8936;
+}
+
+.status-message {
+  background: #edf2f7;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.status-message p {
+  margin: 0;
+  color: #4a5568;
+}
+
+.status-errors {
+  background: #fed7d7;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.status-errors h4 {
+  margin: 0 0 0.5rem 0;
+  color: #c53030;
+}
+
+.status-errors ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #c53030;
+}
+
+.status-errors li {
+  margin-bottom: 0.25rem;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+  text-align: center;
+  padding: 2rem;
+}
+
+.spinner {
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-indicator p {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .batch-upload-container {
+    padding: 1rem;
+  }
+
+  .batch-upload-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .template-section,
+  .upload-section,
+  .job-status {
+    padding: 1.5rem;
+  }
+
+  .file-drop-zone {
+    padding: 2rem 1rem;
+  }
+
+  .upload-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-actions {
+    flex-direction: column;
+  }
+
+  .btn-upload,
+  .btn-cancel {
+    width: 100%;
+  }
+}

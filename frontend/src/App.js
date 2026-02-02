@@ -9,6 +9,7 @@ import ProductForm from './pages/ProductForm';
 import AdminLogin from './pages/AdminLogin';
 import AdminSignup from './pages/AdminSignup';
 import AdminUsers from './pages/AdminUsers';
+import ProductBatchUpload from './pages/ProductBatchUpload';
 import { getCurrentUser, refreshCurrentUser } from './services/auth';
 
 export default function App() {
@@ -16,7 +17,7 @@ export default function App() {
 
   useEffect(() => {
     let mounted = true;
-    refreshCurrentUser().catch(() => {});
+    refreshCurrentUser().catch(() => { });
     const handler = () => {
       if (!mounted) return;
       setCurrentUser(getCurrentUser());
@@ -34,6 +35,9 @@ export default function App() {
         <nav style={{ marginBottom: 16 }}>
           <Link to="/" style={{ marginRight: 12 }}>Home</Link>
           <Link to="/products" style={{ marginRight: 12 }}>Products</Link>
+          {currentUser && (
+            <Link to="/products/batch-upload" style={{ marginRight: 12 }}>Batch Upload</Link>
+          )}
           <Link to="/login" style={{ marginRight: 12 }}>Login</Link>
           <Link to="/signup">Signup</Link>
           <span style={{ margin: '0 12px' }}>|</span>
@@ -55,6 +59,7 @@ export default function App() {
           <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
           <Route path="/products/new" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
           <Route path="/products/:id/edit" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
+          <Route path="/products/batch-upload" element={<ProtectedRoute><ProductBatchUpload /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute roles={["ADMIN"]}><AdminUsers /></ProtectedRoute>} />
         </Routes>
       </div>

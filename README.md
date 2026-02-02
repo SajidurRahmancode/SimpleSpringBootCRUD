@@ -24,6 +24,7 @@ A full-stack web application built with Spring Boot and React that provides a co
 
 ### Product Management
 - **Product CRUD Operations**: Create, read, update, and delete products
+- **Batch CSV Upload**: Bulk import products from CSV files using Spring Batch
 - **Image Upload**: Support for product image uploads (up to 5MB)
 - **Product Search**: Search products by name or description
 - **Stock Management**: Track product stock quantities and identify low-stock items
@@ -55,6 +56,7 @@ A full-stack web application built with Spring Boot and React that provides a co
   - Spring Data JPA
   - Spring Security
   - Spring Boot Validation
+  - Spring Batch
 - **MySQL Database**
 - **JWT (JSON Web Tokens)** - v0.11.5
 - **Flyway** - Database migrations
@@ -305,6 +307,9 @@ SimpleSpringBootCRUD/
 | GET | `/api/products/search` | Search products | Authenticated |
 | GET | `/api/products/in-stock` | Get in-stock products | Authenticated |
 | GET | `/api/products/my` | Get user's products | User |
+| POST | `/api/products/batch/upload` | Upload CSV for batch import | Authenticated |
+| GET | `/api/products/batch/status/{jobId}` | Get batch job status | Authenticated |
+| GET | `/api/products/batch/template` | Download CSV template | Public |
 
 
 

@@ -6,6 +6,9 @@ import com.simple.crud.demo.model.entity.User;
 import com.simple.crud.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +27,13 @@ public class UserService {
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
-    public org.springframework.data.domain.Page<UserResponseDto> getAllUsers(org.springframework.data.domain.Pageable pageable) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<UserResponseDto> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(userMapper::toDto);
     }
 
     @Transactional(readOnly = true)
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public Optional<UserResponseDto> getUserById(Long id) {
         Optional<UserResponseDto> result = userRepository.findById(id)
             .map(userMapper::toDto);
@@ -41,7 +44,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public Optional<UserResponseDto> getUserByUsername(String username) {
         Optional<UserResponseDto> result = userRepository.findByUsername(username)
             .map(userMapper::toDto);
@@ -51,7 +54,7 @@ public class UserService {
         return result;
     }
 
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDto createUser(UserCreateDto userCreateDto) {
         log.info("AUDIT: Admin creating user - username: {}, email: {}", 
                 userCreateDto.getUsername(), userCreateDto.getEmail());
@@ -106,7 +109,7 @@ public class UserService {
         return userMapper.toDto(savedUser);
     }
 
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public Optional<UserResponseDto> updateUser(Long id, UserCreateDto userCreateDto) {
         log.info("AUDIT: Admin updating user - userId: {}, newUsername: {}", id, userCreateDto.getUsername());
         return userRepository.findById(id)
@@ -137,7 +140,7 @@ public class UserService {
                 });
     }
 
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public boolean deleteUser(Long id) {
         log.info("AUDIT: Admin attempting to delete user - userId: {}", id);
         if (userRepository.existsById(id)) {
