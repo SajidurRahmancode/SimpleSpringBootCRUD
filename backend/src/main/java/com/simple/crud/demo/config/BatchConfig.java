@@ -35,8 +35,9 @@ import java.util.Set;
 @Slf4j // Enables logging via 'log'
 
 
+// for importing products from uploaded CSV files
 public class BatchConfig { // Spring Batch configuration for CSV import
-
+    // Dependencies injected via constructor
     private final Validator validator; // Bean validator for DTO validation
     private final ProductRepository productRepository; // Repository for persisting products
     private final UserRepository userRepository; // Repository to resolve users (future use)
@@ -45,6 +46,12 @@ public class BatchConfig { // Spring Batch configuration for CSV import
 
     @Bean // Registers the reader bean in the Spring context and can inject elsewhere
     @StepScope // Reader is created per step execution;NEW instance for each step execution, allows jobParameters injection, different file for each job is allowed now 
+    // Reader to parse CSV into ProductCsvRecordDto
+    // Uses job parameter 'filePath' to locate the uploaded CSV file 
+    // Configured to skip header and map fields appropriately
+    // Reads each line, tokenizes by comma, and maps to DTO
+    // with validation handled in processor 
+    // to ensure data integrity before processing
     public FlatFileItemReader<ProductCsvRecordDto> csvReader(@Value("#{jobParameters['filePath']}") String filePath) { //Spring Expression Language (SpEL) Reads the CSV rows into ProductCsvRecordDto
         /* 
         reading flow 
@@ -88,6 +95,11 @@ public class BatchConfig { // Spring Batch configuration for CSV import
     }
 
     @Bean // Registers the processor bean
+    // Processor to validate and convert DTO to entity
+    // Validates each ProductCsvRecordDto using Bean Validation
+    // If validation fails, throws exception to skip the item
+    // On success, maps fields to Product entity
+    // setting default values as needed
     public ItemProcessor<ProductCsvRecordDto, Product> productProcessor() { // Validates and transforms DTO to entity
         return csvRecord -> { //lambda , Function without a name, Item-by-item processing
             Set<ConstraintViolation<ProductCsvRecordDto>> violations = validator.validate(csvRecord); // Validate fields,Checks all validation annotations on ProductCsvRecordDto
@@ -107,6 +119,13 @@ public class BatchConfig { // Spring Batch configuration for CSV import
     }
 
     @Bean // Registers the writer bean
+    // Writer to persist Product entities in chunks
+    // Uses ProductRepository to bulk save items
+    // Logs the number of items saved for monitoring
+    // Handles lists of Product entities emitted by the processor
+    // and persists them to the database
+    // with efficient batch operations
+    // leveraging Spring Data JPA's saveAll method
     public ItemWriter<Product> productWriter() { // Persists products in chunks
         return items -> { // lambda function, Writes callback for batch chunk
             productRepository.saveAll(items); // Bulk save via JPA repository
@@ -115,6 +134,13 @@ public class BatchConfig { // Spring Batch configuration for CSV import
     }
 
     @Bean // Registers the step used by the job
+    // Step defining the chunk-oriented processing
+    // Configures reader, processor, and writer
+    // Sets chunk size and fault tolerance
+    // to handle large files efficiently
+    // with skipping of faulty records
+    // encapsulates the entire read-process-write cycle
+    // with error handling and transaction management
     public Step importProductStep(ItemReader<ProductCsvRecordDto> productCsvReader, // Inject reader
                                   ItemProcessor<ProductCsvRecordDto, Product> productProcessor, // Inject processor
                                   ItemWriter<Product> productWriter) { // Inject writer
@@ -130,6 +156,11 @@ public class BatchConfig { // Spring Batch configuration for CSV import
     }
 
     @Bean // Registers the job that runs the step
+    // Job definition for importing products
+    // Single step job that executes the importProductStep
+    // Configured with the job repository
+    // encapsulates the entire batch process
+    // from reading the CSV to persisting products
     public Job importProductJob(Step importProductStep) { // Single-step job for product import
         return new JobBuilder("importProductJob", jobRepository) // Create job builder
                 .start(importProductStep) // Start with the import step

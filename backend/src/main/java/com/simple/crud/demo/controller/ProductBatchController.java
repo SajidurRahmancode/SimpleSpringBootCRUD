@@ -31,25 +31,32 @@ import java.util.Map;
 @RequestMapping("/api/products/batch") // Base path for all endpoints here
 @RequiredArgsConstructor // Generates constructor for final fields
 @Tag(name = "Product Batch", description = "Batch product upload endpoints") // Swagger tag grouping
-public class ProductBatchController { // Handles batch product-related routes
 
+// Controller for handling batch product operations
+// Defines endpoints for uploading CSVs, checking job status, and downloading templates
+// Delegates business logic to ProductBatchService
+// Provides detailed API documentation via Swagger annotations
+// with appropriate response codes and payload schemas
+public class ProductBatchController { // Handles batch product-related routes
+        // Service layer dependency
         private final ProductBatchService productBatchService; // Service layer dependency
 
         @PostMapping("/upload") // Accepts CSV upload via multipart form
-    @Operation(
-                        summary = "Upload CSV for batch processing", // Brief summary for docs
-                        description = "Uploads a CSV file and starts a batch job.", // Detailed description
-                        security = @SecurityRequirement(name = "bearerAuth"), // Requires JWT auth
-            responses = {
-                    @ApiResponse(
-                                                        responseCode = "200", // Success response code
-                                                        description = "Upload accepted", // Success message
-                                                        content = @Content(schema = @Schema(implementation = BatchUploadResponseDto.class)) // Response DTO
-                    ),
-                                        @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content), // Bad request
-                                        @ApiResponse(responseCode = "500", description = "Server error", content = @Content) // Server error
-            }
-    )
+        @Operation(
+                                summary = "Upload CSV for batch processing", // Brief summary for docs
+                                description = "Uploads a CSV file and starts a batch job.", // Detailed description
+                                security = @SecurityRequirement(name = "bearerAuth"), // Requires JWT auth
+                responses = {
+                        @ApiResponse(
+                                                                responseCode = "200", // Success response code
+                                                                description = "Upload accepted", // Success message
+                                                                content = @Content(schema = @Schema(implementation = BatchUploadResponseDto.class)) // Response DTO
+                        ),
+                                                @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content), // Bad request
+                                                @ApiResponse(responseCode = "500", description = "Server error", content = @Content) // Server error
+                }
+        )   
+        // Endpoint method for uploading CSV file
         public ResponseEntity<?> uploadCsvFile(@RequestParam("file") MultipartFile file) { // Endpoint method signature
                 try { // Attempt processing
                         BatchUploadResponseDto response = productBatchService.uploadAndProcessCsv(file); // Delegate to service
@@ -60,20 +67,21 @@ public class ProductBatchController { // Handles batch product-related routes
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Unexpected error")); // Return 500
                 }
         }
-
+        // Endpoint to get status of a batch job by execution ID
         @GetMapping("/status/{jobExecutionId}") // Query job status by ID
-    @Operation(
-                        summary = "Get batch job status", // Summary
-                        parameters = @Parameter(name = "jobExecutionId", in = ParameterIn.PATH, required = true, description = "Job execution ID"), // Path variable doc
-            responses = {
-                    @ApiResponse(
-                                                        responseCode = "200", // Success
-                                                        description = "Status retrieved", // Description
-                                                        content = @Content(schema = @Schema(implementation = BatchUploadResponseDto.class)) // DTO content
-                    ),
-                                        @ApiResponse(responseCode = "404", description = "Job not found", content = @Content) // Not found
-            }
-    )
+        @Operation(
+                                summary = "Get batch job status", // Summary
+                                parameters = @Parameter(name = "jobExecutionId", in = ParameterIn.PATH, required = true, description = "Job execution ID"), // Path variable doc
+                responses = {
+                        @ApiResponse(
+                                                                responseCode = "200", // Success
+                                                                description = "Status retrieved", // Description
+                                                                content = @Content(schema = @Schema(implementation = BatchUploadResponseDto.class)) // DTO content
+                        ),
+                                                @ApiResponse(responseCode = "404", description = "Job not found", content = @Content) // Not found
+                }
+        )
+        // Method to handle status requests
         public ResponseEntity<BatchUploadResponseDto> getJobStatus(@PathVariable Long jobExecutionId) { // Status endpoint
                 BatchUploadResponseDto response = productBatchService.getJobStatus(jobExecutionId); // Delegate to service
                 if (response == null) { // If job not found
@@ -83,11 +91,12 @@ public class ProductBatchController { // Handles batch product-related routes
         }
 
         @GetMapping("/template") // Download a sample CSV template
-    @Operation(
-                        summary = "Download CSV template", // Summary
-                        description = "Download a sample CSV template file with the correct format for batch product upload", // Description
-                        responses = @ApiResponse(responseCode = "200", description = "Template downloaded successfully") // Success doc
-    )
+        @Operation(
+                                summary = "Download CSV template", // Summary
+                                description = "Download a sample CSV template file with the correct format for batch product upload", // Description
+                                responses = @ApiResponse(responseCode = "200", description = "Template downloaded successfully") // Success doc
+        )
+        // Method to serve CSV template
         public ResponseEntity<Resource> downloadTemplate() { // Template endpoint handler
                 String csvContent = """
                                 name,description,price,stockQuantity
