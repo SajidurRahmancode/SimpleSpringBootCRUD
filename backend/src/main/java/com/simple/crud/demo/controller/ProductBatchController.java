@@ -59,6 +59,9 @@ public class ProductBatchController { // Handles batch product-related routes
         // Endpoint method for uploading CSV file
         public ResponseEntity<?> uploadCsvFile(@RequestParam("file") MultipartFile file) { // Endpoint method signature
                 try { // Attempt processing
+                        // Delegate to service layer
+                        // to handle upload and job start
+                        // Return detailed response DTO
                         BatchUploadResponseDto response = productBatchService.uploadAndProcessCsv(file); // Delegate to service
                         return ResponseEntity.ok(response); // Return 200 with DTO
                 } catch (IllegalArgumentException ex) { // Handle validation errors
@@ -96,6 +99,7 @@ public class ProductBatchController { // Handles batch product-related routes
                                 description = "Download a sample CSV template file with the correct format for batch product upload", // Description
                                 responses = @ApiResponse(responseCode = "200", description = "Template downloaded successfully") // Success doc
         )
+
         // Method to serve CSV template
         public ResponseEntity<Resource> downloadTemplate() { // Template endpoint handler
                 String csvContent = """
@@ -104,6 +108,8 @@ public class ProductBatchController { // Handles batch product-related routes
                                 USB-C Cable,Premium USB-C charging cable 2m,19.99,200
                                 Mechanical Keyboard,RGB mechanical gaming keyboard,89.99,50
                                 """; // Multi-line CSV content
+                // Construct CSV content as a string
+                // Return as downloadable resource
                 ByteArrayResource resource = new ByteArrayResource(csvContent.getBytes()); // Wrap content as a resource
                 return ResponseEntity.ok() // Return 200 OK
                                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=product_template.csv") // Force download name
