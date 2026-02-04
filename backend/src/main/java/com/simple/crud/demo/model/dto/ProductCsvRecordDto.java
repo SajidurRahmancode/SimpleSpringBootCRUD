@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Builder // Lombok: builder for constructing instances
 @NoArgsConstructor // Lombok: no-args constructor
 @AllArgsConstructor // Lombok: all-args constructor
-public class ProductCsvRecord { // Represents one row from the uploaded CSV
+public class ProductCsvRecordDto { // Represents one row from the uploaded CSV
     @NotBlank(message = "Product name is required") // Must not be blank
     @Size(min = 1, max = 100, message = "Product name must be between 1 and 100 characters") // Enforce length range
     private String name; // Product name column

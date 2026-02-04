@@ -1,6 +1,6 @@
 package com.simple.crud.demo.config; // Package grouping for configuration classes
 
-import com.simple.crud.demo.model.dto.ProductCsvRecord;
+import com.simple.crud.demo.model.dto.ProductCsvRecordDto;
 import com.simple.crud.demo.model.entity.Product;
 import com.simple.crud.demo.repository.ProductRepository;
 import com.simple.crud.demo.repository.UserRepository;
@@ -33,6 +33,8 @@ import java.util.Set;
 @Configuration // Marks this class as a Spring configuration source
 @RequiredArgsConstructor // Generates constructor for all final fields
 @Slf4j // Enables logging via 'log'
+
+
 public class BatchConfig { // Spring Batch configuration for CSV import
 
     private final Validator validator; // Bean validator for DTO validation
@@ -41,31 +43,54 @@ public class BatchConfig { // Spring Batch configuration for CSV import
     private final JobRepository jobRepository; // Spring Batch job metadata repository
     private final PlatformTransactionManager transactionManager; // Transaction manager for chunking
 
-    @Bean // Registers the reader bean in the Spring context
-    @StepScope // Reader is created per step execution; allows jobParameters injection
-    public FlatFileItemReader<ProductCsvRecord> csvReader(@Value("#{jobParameters['filePath']}") String filePath) { // Reads CSV rows into ProductCsvRecord
-        FlatFileItemReader<ProductCsvRecord> reader = new FlatFileItemReader<>(); // Instantiate a flat file reader
-        reader.setResource(new FileSystemResource(filePath)); // Source file provided via job parameter
+    @Bean // Registers the reader bean in the Spring context and can inject elsewhere
+    @StepScope // Reader is created per step execution;NEW instance for each step execution, allows jobParameters injection, different file for each job is allowed now 
+    public FlatFileItemReader<ProductCsvRecordDto> csvReader(@Value("#{jobParameters['filePath']}") String filePath) { //Spring Expression Language (SpEL) Reads the CSV rows into ProductCsvRecordDto
+        /* 
+        reading flow 
+        1. Reader reads line: "Laptop,Gaming laptop,1899.99,15"
+            String line = readLine();
+
+
+        2. Passes to LineMapper
+            ProductCsvRecord record = lineMapper.mapLine(line, 0);
+
+        3. LineMapper uses Tokenizer:
+            String[] tokens = tokenizer.tokenize(line);
+            tokens = ["Laptop", "Gaming laptop", "1899.99", "15"]
+
+        4. LineMapper uses FieldMapper:
+            ProductCsvRecord record = new ProductCsvRecord();
+            fieldSetMapper.mapFieldSet(tokens);
+            Calls: setName("Laptop"), setDescription("Gaming laptop"), etc.
+
+        5. Returns the populated object
+            return record;
+        */
+        FlatFileItemReader<ProductCsvRecordDto> reader = new FlatFileItemReader<>(); // Instantiate a flat file reader
+        reader.setResource(new FileSystemResource(filePath)); // Source file provided via job parameter, tell reader which file to read
         reader.setLinesToSkip(1); // Skip header line
 
-        DefaultLineMapper<ProductCsvRecord> lineMapper = new DefaultLineMapper<>(); // Maps each line to a DTO
-        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer(); // Splits lines by delimiter
+        DefaultLineMapper<ProductCsvRecordDto> lineMapper = new DefaultLineMapper<>(); // Maps each line to a DTO ,line mapper Converts a line of text → Java object
+        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer(); // Splits lines by delimiter, Tokenizer:  Split line into fields
         tokenizer.setDelimiter(","); // Use comma as delimiter
         tokenizer.setNames("name", "description", "price", "stockQuantity"); // Expected column names
 
-        BeanWrapperFieldSetMapper<ProductCsvRecord> fieldSetMapper = new BeanWrapperFieldSetMapper<>(); // Map fields to DTO
-        fieldSetMapper.setTargetType(ProductCsvRecord.class); // Target DTO type
+        BeanWrapperFieldSetMapper<ProductCsvRecordDto> fieldSetMapper = new BeanWrapperFieldSetMapper<>(); // Map fields to DTO,Maps tokenized fields to Java object Spring's utility for accessing object properties
+        fieldSetMapper.setTargetType(ProductCsvRecordDto.class); // Target DTO type,Tells mapper which class to create
 
         lineMapper.setLineTokenizer(tokenizer); // Attach tokenizer
-        lineMapper.setFieldSetMapper(fieldSetMapper); // Attach mapper
+        //Raw CSV Line → [Tokenizer] → Array of Strings → [FieldMapper] → Java Object
+        lineMapper.setFieldSetMapper(fieldSetMapper); // Attach mapper ,After tokenizing, use this mapper to create objects 
+        
         reader.setLineMapper(lineMapper); // Configure reader mapping
         return reader; // Return configured reader
     }
 
     @Bean // Registers the processor bean
-    public ItemProcessor<ProductCsvRecord, Product> productProcessor() { // Validates and transforms DTO to entity
-        return csvRecord -> { // Item-by-item processing
-            Set<ConstraintViolation<ProductCsvRecord>> violations = validator.validate(csvRecord); // Validate fields
+    public ItemProcessor<ProductCsvRecordDto, Product> productProcessor() { // Validates and transforms DTO to entity
+        return csvRecord -> { //lambda , Function without a name, Item-by-item processing
+            Set<ConstraintViolation<ProductCsvRecordDto>> violations = validator.validate(csvRecord); // Validate fields,Checks all validation annotations on ProductCsvRecordDto
             if (!violations.isEmpty()) { // If validation fails
                 throw new IllegalArgumentException("Validation failed for record: " + csvRecord); // Fail the item
             }
@@ -83,18 +108,18 @@ public class BatchConfig { // Spring Batch configuration for CSV import
 
     @Bean // Registers the writer bean
     public ItemWriter<Product> productWriter() { // Persists products in chunks
-        return items -> { // Write callback for batch chunk
+        return items -> { // lambda function, Writes callback for batch chunk
             productRepository.saveAll(items); // Bulk save via JPA repository
             log.info("Saved {} products", items.size()); // Log number of persisted records
         }; // End writer
     }
 
     @Bean // Registers the step used by the job
-    public Step importProductStep(ItemReader<ProductCsvRecord> productCsvReader, // Inject reader
-                                  ItemProcessor<ProductCsvRecord, Product> productProcessor, // Inject processor
+    public Step importProductStep(ItemReader<ProductCsvRecordDto> productCsvReader, // Inject reader
+                                  ItemProcessor<ProductCsvRecordDto, Product> productProcessor, // Inject processor
                                   ItemWriter<Product> productWriter) { // Inject writer
         return new StepBuilder("importProductStep", jobRepository) // Create step builder with job repository
-                .<ProductCsvRecord, Product>chunk(100, transactionManager) // Define chunk size and transaction manager
+                .<ProductCsvRecordDto, Product>chunk(100, transactionManager) // Define chunk size and transaction manager
                 .reader(productCsvReader) // Use our reader
                 .processor(productProcessor) // Use our processor
                 .writer(productWriter) // Use our writer
